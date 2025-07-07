@@ -1,9 +1,74 @@
-# playlist example
+// App.js
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import HomeScreen from './screens/HomeScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import UploadScreen from './screens/UploadScreen';
+import { StatusBar } from 'expo-status-bar';
+import { auth } from './firebaseConfig';
+import { onAuthStateChanged } from 'firebase/auth';
+import { useEffect, useState } from 'react';
 
-An example app using the [Expo.Audio](https://docs.expo.io/versions/latest/sdk/audio/) & [Expo.Video](https://docs.expo.io/versions/latest/sdk/video/) API.
+const Tab = createBottomTabNavigator();
 
-See [App.js](https://github.com/expo/playlist-example/blob/master/App.js) for the good stuff.
+export default function App() {
+  const [user, setUser] = useState(null);
 
----
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, userAuth => {
+      setUser(userAuth);
+    });
+    return unsubscribe;
+  }, []);
 
-### Please report any issues at the [main Expo repository](https://github.com/expo/expo/issues)
+  if (!user) {
+    return <LoginScreen />;
+  }
+
+  return (
+    <NavigationContainer>
+      <StatusBar style="light" />
+      <Tab.Navigator>
+        <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="Upload" component={UploadScreen} />
+        <Tab.Screen name="Profile" component={ProfileScreen} />
+      </Tab.Navigator>
+    </NavigationContainer>
+  );
+}// firebaseConfig.js
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+
+const firebaseConfig = {
+  apiKey: "YOUR_FIREBASE_API",
+  authDomain: "YOUR_FIREBASE_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);YutTokApp/
+│
+├── App.js
+├── firebaseConfig.js
+├── screens/
+│   ├── HomeScreen.js
+│   ├── ProfileScreen.js
+│   ├── UploadScreen.js
+│   ├── LoginScreen.js
+├── components/
+│   ├── VideoPlayer.js
+│   ├── VideoCard.js
+│   └── Header.js
+├── assets/
+│   ├── icons/
+│   └── logo.png
+└── package.json
